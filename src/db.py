@@ -22,6 +22,11 @@ class InMemoryDB(InventoryDB):
         self.items: typing.Dict[int, Item] = {}
         self.item_metadata: typing.Dict[int, ItemMetadata] = {}
 
+    def _get_next_id(self, list: typing.List) -> int:
+        """ Gets the next ID for the given list, starting at 0
+        """
+        return max(list, default=-1) + 1
+
     def _validate_item(self, item: Item)-> None:
         if item.amount < 0:
             raise ValueError(f"Item amount {item.amount} cannot be negative")
@@ -35,7 +40,7 @@ class InMemoryDB(InventoryDB):
         db_item = deepcopy(item)
         self._validate_item(db_item)
         if db_item.id is None:
-            db_item.id = max(self.items.keys(), deault=0)
+            db_item.id = self._get_next_id(self.items.keys())
 
         self.items[db_item.id] = db_item
         return db_item
@@ -51,7 +56,7 @@ class InMemoryDB(InventoryDB):
         db_object = deepcopy(metadata)
         self._validate_item_metadata(db_object)
         if db_object.id is None:
-            db_object.id = max(self.item_metadata.keys(), default=0)
+            db_object.id = self._get_next_id(self.item_metadata.keys())
 
-        self.items[db_object.id] = db_object
+        self.item_metadata[db_object.id] = db_object
         return db_object
