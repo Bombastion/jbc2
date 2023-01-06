@@ -54,6 +54,9 @@ class InMemoryDB(InventoryDB):
         """
         return self._add_db_item(item, self._validate_item, self.items)
 
+    def get_item(self, id: int) -> Item:
+        return self.items.get(id)
+
     def _validate_item_metadata(self, metadata: ItemMetadata)-> None:
         if not metadata.name:
             raise ValueError(f"Item name cannot be empty: {metadata.name}")

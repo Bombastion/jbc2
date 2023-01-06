@@ -79,3 +79,17 @@ def test_add_item():
     assert result.metadata_id == 999
     assert result.id == 1
     assert len(subject.items) == 2
+
+def test_get_item__none_when_no_id():
+    subject = InMemoryDB()
+    assert subject.get_item(99) is None 
+
+def test_get_item():
+    test_item = Item(amount=1, metadata_id=999, id=None)
+
+    subject = InMemoryDB()
+    subject.item_metadata[999] = None
+    test_item = subject.add_item(test_item)
+    result = subject.get_item(test_item.id)
+
+    assert result == test_item
