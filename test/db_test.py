@@ -4,6 +4,11 @@ from db import InMemoryDB
 from models import Item, ItemMetadata
 
 
+def test_add_db_item__fails_on_wrong_type():
+    subject = InMemoryDB()
+    with pytest.raises(ValueError) as ve:
+        subject._add_db_item(99, print, [], str)
+
 def test_add_item_metadata__requires_name():
     test_item = ItemMetadata(name="")
 
@@ -36,6 +41,20 @@ def test_add_item_metadata__increments_id():
     assert result.name == "test"
     assert len(subject.item_metadata) == 2
 
+def test_get_item_metadata__none_when_no_id():
+    subject = InMemoryDB()
+    assert subject.get_item_metadata(99) is None 
+
+def test_get_item_metadata():
+    test_item = ItemMetadata(name="FishCola", id=None)
+
+    subject = InMemoryDB()
+    test_item = subject.add_item_metadata(test_item)
+    result = subject.get_item_metadata(test_item.id)
+
+    assert result == test_item
+
+
 def test_add_item__requires_valid_amount():
     test_item = Item(amount=-5, metadata_id=None, id=None)
 
@@ -54,7 +73,7 @@ def test_add_item__requires_metadata_id():
     with pytest.raises(ValueError) as ve:
         subject.add_item(test_item)
 
-    assert "Invalid metadata_id" in str(ve.value)
+    assert "Cannot add item with invalid metadata_id" in str(ve.value)
 
 def test_add_item__requires_matching_metadata():
     test_item = Item(amount=1, metadata_id=999, id=None)
@@ -64,13 +83,13 @@ def test_add_item__requires_matching_metadata():
     with pytest.raises(ValueError) as ve:
         subject.add_item(test_item)
 
-    assert "Invalid metadata_id" in str(ve.value)
+    assert "Cannot add item with invalid metadata_id" in str(ve.value)
 
 def test_add_item():
     test_item = Item(amount=1, metadata_id=999, id=None)
 
     subject = InMemoryDB()
-    subject.item_metadata[999] = None
+    subject.item_metadata[999] = ItemMetadata(name="any")
 
     subject.add_item(test_item)
     result = subject.add_item(test_item)
@@ -88,7 +107,7 @@ def test_get_item():
     test_item = Item(amount=1, metadata_id=999, id=None)
 
     subject = InMemoryDB()
-    subject.item_metadata[999] = None
+    subject.item_metadata[999] = ItemMetadata(name="any")
     test_item = subject.add_item(test_item)
     result = subject.get_item(test_item.id)
 
