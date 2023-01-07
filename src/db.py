@@ -39,6 +39,9 @@ class InMemoryDB(InventoryDB):
             raise ValueError(f"Item amount {item.amount} cannot be negative")
         if item.metadata_id is None or not self.get_item_metadata(item.metadata_id):
             raise ValueError(f"Cannot add item with invalid metadata_id {item.metadata_id}")
+        if item.inventory_id is None or not self.get_inventory(item.inventory_id):
+            raise ValueError(f"Cannot add item with invalid inventory_id {item.inventory_id}")
+
 
     def _add_db_item(self, object: typing.Any, validate_method: typing.Callable, collection: typing.Dict[int, typing.Any], expected_type: type[object]) -> typing.Any:
         db_object = deepcopy(object)

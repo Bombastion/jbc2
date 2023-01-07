@@ -4,7 +4,7 @@ from dataclasses import dataclass
 class Item:
     amount: int
     metadata_id: int
-    intentory_id: int
+    inventory_id: int
     id: int = None # To be automatically populated by the db
     
 

@@ -1,7 +1,7 @@
 import pytest
 
 from db import InMemoryDB
-from models import Item, ItemMetadata
+from models import Inventory, Item, ItemMetadata
 
 
 def test_add_db_item__fails_on_wrong_type():
@@ -56,7 +56,7 @@ def test_get_item_metadata():
 
 
 def test_add_item__requires_valid_amount():
-    test_item = Item(amount=-5, metadata_id=None, id=None)
+    test_item = Item(amount=-5, metadata_id=None, inventory_id=None, id=None)
 
     subject = InMemoryDB()
 
@@ -66,7 +66,7 @@ def test_add_item__requires_valid_amount():
     assert "Item amount" in str(ve.value)
 
 def test_add_item__requires_metadata_id():
-    test_item = Item(amount=1, metadata_id=None, id=None)
+    test_item = Item(amount=1, metadata_id=None, inventory_id=None, id=None)
 
     subject = InMemoryDB()
 
@@ -76,7 +76,7 @@ def test_add_item__requires_metadata_id():
     assert "Cannot add item with invalid metadata_id" in str(ve.value)
 
 def test_add_item__requires_matching_metadata():
-    test_item = Item(amount=1, metadata_id=999, id=None)
+    test_item = Item(amount=1, metadata_id=999, inventory_id=None, id=None)
 
     subject = InMemoryDB()
 
@@ -85,11 +85,23 @@ def test_add_item__requires_matching_metadata():
 
     assert "Cannot add item with invalid metadata_id" in str(ve.value)
 
-def test_add_item():
-    test_item = Item(amount=1, metadata_id=999, id=None)
+def test_add_item__requires_matching_inventory():
+    test_item = Item(amount=1, metadata_id=999, inventory_id=999, id=None)
 
     subject = InMemoryDB()
     subject.item_metadata[999] = ItemMetadata(name="any")
+
+    with pytest.raises(ValueError) as ve:
+        subject.add_item(test_item)
+
+    assert "Cannot add item with invalid inventory_id" in str(ve.value)
+
+def test_add_item():
+    test_item = Item(amount=1, metadata_id=999, inventory_id=999, id=None)
+
+    subject = InMemoryDB()
+    subject.item_metadata[999] = ItemMetadata(name="any")
+    subject.inventories[999] = Inventory(name="any")
 
     subject.add_item(test_item)
     result = subject.add_item(test_item)
@@ -104,10 +116,12 @@ def test_get_item__none_when_no_id():
     assert subject.get_item(99) is None 
 
 def test_get_item():
-    test_item = Item(amount=1, metadata_id=999, id=None)
+    test_item = Item(amount=1, metadata_id=999, inventory_id=999, id=None)
 
     subject = InMemoryDB()
     subject.item_metadata[999] = ItemMetadata(name="any")
+    subject.inventories[999] = Inventory(name="any")
+
     test_item = subject.add_item(test_item)
     result = subject.get_item(test_item.id)
 
