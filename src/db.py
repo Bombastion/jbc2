@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 import typing
 
-from models import Item, ItemMetadata
+from models import Inventory, Item, ItemMetadata
 
 class InventoryDB(ABC):
     @abstractmethod
@@ -27,6 +27,7 @@ class InMemoryDB(InventoryDB):
     def __init__(self):
         self.items: typing.Dict[int, Item] = {}
         self.item_metadata: typing.Dict[int, ItemMetadata] = {}
+        self.inventories: typing.Dict[int, Inventory] = {}
 
     def _get_next_id(self, list: typing.List) -> int:
         """ Gets the next ID for the given list, starting at 0
@@ -71,3 +72,13 @@ class InMemoryDB(InventoryDB):
 
     def get_item_metadata(self, id: int) -> ItemMetadata:
         return self.item_metadata.get(id)
+
+    def _validate_inventory(self, inventory: Inventory) -> None:
+        if not inventory.name:
+            raise ValueError(f"Inventory name cannot be empty: {inventory.name}")
+    
+    def add_inventory(self, inventory: Inventory) -> Inventory:
+        return self._add_db_item(inventory, self._validate_inventory, self.inventories, Inventory)
+
+    def get_inventory(self, id: int) -> Inventory:
+        return self.inventories.get(id)
