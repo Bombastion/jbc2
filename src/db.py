@@ -23,6 +23,24 @@ class InventoryDB(ABC):
         """
         pass
 
+    @abstractmethod
+    def get_item_metadata(self, id: int) -> ItemMetadata:
+        """ Finds an ItemMetadata by ID
+        """
+        pass
+
+    @abstractmethod
+    def add_inventory(self, inventory: Inventory) -> Inventory:
+        """ Adds an inventory to the DB and hydrates its ID
+        """
+        pass
+
+    @abstractmethod
+    def get_inventory(self, id: int) -> Inventory:
+        """ Finds an inventory by ID
+        """
+        pass
+
 class InMemoryDB(InventoryDB):
     def __init__(self):
         self.items: typing.Dict[int, Item] = {}

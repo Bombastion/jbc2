@@ -5,6 +5,8 @@ WORKDIR /opt/app
 COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
+ENV PYTHONPATH "${PYTHONPATH}:./src"
+
 
 EXPOSE 5000
 EXPOSE 80
